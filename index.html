@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15233e">
+  <title>MoE-DAgger | Transition-Aware Human Correction</title>
+  <meta name="description" content="MoE-DAgger uses causal router history to distinguish normal phase transitions from ambiguity that calls for human correction. A real-robot learning project from UNIST.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MoE-DAgger: Transition-Aware Router-Entropy Gating for Selective Human Correction in Phase-Structured Manipulation">
+  <meta property="og:description" content="Transition-aware router-entropy gating for selective human correction in phase-structured manipulation.">
+  <meta property="og:url" content="https://SJ824.github.io/MoE-DAgger/">
+  <meta property="og:image" content="https://SJ824.github.io/MoE-DAgger/assets/images/social-preview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="citation_title" content="MoE-DAgger: Transition-Aware Router-Entropy Gating for Selective Human Correction in Phase-Structured Manipulation">
+  <meta name="citation_author" content="Heo, Sungjun">
+  <meta name="citation_author" content="Yang, Sungjun">
+  <meta name="citation_author" content="Jeong, Heedon">
+  <meta name="citation_author" content="Ha, Junhyoung">
+  <meta name="citation_author" content="Jeon, Jeong hwan">
+  <meta name="citation_date" content="2026/11/07">
+  <meta name="citation_online_date" content="2026/11/07">
+  <meta name="citation_arxiv_id" content="2611.10825">
+  <meta name="citation_doi" content="10.48550/arXiv.2611.10825">
+  <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2611.10825">
+  <link rel="canonical" href="https://SJ824.github.io/MoE-DAgger/">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <link rel="preload" href="assets/fonts/dm-sans-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/style.css?v=5d5b2a888dbd">
+  <script src="site-config.js?v=38a0cc88d60a" defer></script>
+  <script src="assets/js/data.js?v=8a750fe93153" defer></script>
+  <script src="assets/js/main.js?v=d0c4af9fa498" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="#top" aria-label="MoE-DAgger home"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>MoE-DAgger</span></a>
+      <button class="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false">Menu <span aria-hidden="true">+</span></button>
+      <nav id="main-nav" aria-label="Main navigation">
+        <a href="#overview">Overview</a><a href="#method">Method</a><a href="#results">Results</a><a href="#resources">Resources <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <div class="hero-band">
+    <section class="hero section-wrap" id="top" aria-labelledby="paper-title">
+      <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> UNIST <span class="eyebrow-divider">/</span> ROBOT LEARNING</p>
+      <h1 id="paper-title"><span class="project-name">MoE-DAgger<span class="title-period">.</span></span><span class="paper-subtitle">Transition-Aware Router-Entropy Gating<br class="desktop-break"> for Selective Human Correction in<br class="desktop-break"> Phase-Structured Manipulation</span></h1>
+      <div class="authors" aria-label="Authors">
+        <span>Sungjun Heo<sup>1</sup></span><span>Sungjun Yang<sup>2</sup></span><span>Heedon Jeong<sup>3</sup></span><span>Junhyoung Ha<sup>2,†</sup></span><span>Jeong hwan Jeon<sup>1,3,†</sup></span>
+      </div>
+      <div class="affiliations"><span><sup>1</sup> Artificial Intelligence Graduate School</span><span><sup>2</sup> Department of Mechanical Engineering</span><span><sup>3</sup> Department of Electrical Engineering</span></div>
+      <p class="institution">Ulsan National Institute of Science and Technology (UNIST), Republic of Korea</p>
+      <p class="advising">† Equal advising · Corresponding authors</p>
+      <div class="resource-badges" aria-label="Project links">
+        <a class="badge badge-primary" id="arxiv-resource" href="https://arxiv.org/abs/2611.10825" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6"/></svg><span>arXiv</span><span aria-hidden="true">↗</span></a>
+        <a class="badge" href="#video"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>Supplementary video</a>
+        <button class="badge badge-muted" id="code-resource" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></svg><span>Code <small id="code-status">(coming soon)</small></span></button>
+      </div>
+      <p class="preprint-link"><a href="assets/paper/moe-dagger.pdf?v=2611.10825v1" target="_blank" rel="noopener">Read the paper PDF · arXiv v1 <span aria-hidden="true">↗</span></a></p>
+    </section>
+    </div>
+
+    <section class="feature-band section-wrap" aria-label="Research at a glance">
+      <div class="feature-copy"><p class="eyebrow">KNOWING WHEN TO ASK FOR HELP</p><h2>Let the transition settle.<br><em>Make correction count.</em></h2><p>Normal phase handoffs can look uncertain. MoE-DAgger uses router history to decide when the robot should continue—and when to request human correction.</p><a class="text-link" href="#method">Explore the idea <span aria-hidden="true">↘</span></a></div>
+      <div class="robot-scene"><div class="scene-orbit" aria-hidden="true"></div><img src="assets/images/robot-fixture.webp" alt="Franka Research 3 robot beside the two-level fixture, with a green cube on the lower shelf and a red cube on the upper shelf." width="739" height="900" fetchpriority="high"><span class="scene-note">TWO TASKS · FIVE PHASES</span></div>
+    </section>
+    <div class="metrics-strip section-wrap" aria-label="Main results">
+      <div><span class="metric-number">84<span>%</span><span class="metric-separator"> / </span>78<span>%</span></span><p>Task success <span>Green / Red</span></p></div>
+      <div><span class="metric-number">+22<span> / </span>+26<span class="metric-unit"> pp</span></span><p>Over phase-unaware filtered entropy</p></div>
+      <div><span class="metric-number">0<span class="metric-unit"> / 50</span></span><p>Observed collisions <span>in each task</span></p></div>
+    </div>
+    <p class="metric-note section-wrap">Matched active human-control budgets · 50 evaluation rollouts per method and task · <a href="#results">Evaluation details ↓</a></p>
+
+    <section id="overview" class="section-wrap content-section" aria-labelledby="overview-title">
+      <div class="section-heading"><p class="section-index">01 / IN THE REAL WORLD</p><div><h2 id="overview-title">Two tasks. A shared phase structure.</h2><p>A Franka Research 3 pushes a cube across a stop line, clears the shelf, and returns home. Green uses the lower shelf; Red uses the upper shelf. Each task has its own learned policy.</p></div></div>
+      <div class="film" id="video">
+        <div class="media-topline"><span><span class="live-dot" aria-hidden="true"></span> SUPPLEMENTARY FILM</span><a href="assets/videos/supplementary.mp4" download="MoE-DAgger-supplementary.mp4">Download MP4 <span aria-hidden="true">↗</span></a></div>
+        <div class="film-screen"><video id="supplementary-video" controls playsinline preload="none" poster="assets/images/supplementary-poster.webp" aria-label="MoE-DAgger supplementary video: tasks, method, and robot experiments"><source src="assets/videos/supplementary.mp4" type="video/mp4">Your browser does not support embedded video. <a href="assets/videos/supplementary.mp4">Download the video.</a></video></div>
+        <p class="media-caption">A guided overview of the two tasks, router behavior, and transition-aware correction rule.</p>
+      </div>
+      <div class="task-grid">
+        <figure class="task-panel">
+          <div class="task-title"><div><span class="task-dot green" aria-hidden="true"></span><h3>Green</h3><span>Lower shelf</span></div><span class="task-number">TASK 01</span></div>
+          <div class="gif-frame" data-animation><img src="assets/images/tasks-green.webp" data-gif="assets/gifs/tasks-green.gif" data-poster="assets/images/tasks-green.webp" alt="Green task demonstration, showing synchronized external and wrist camera views." width="960" height="270" loading="lazy"><div class="media-controls"><button type="button" data-toggle-animation aria-label="Play Green task animation">Play GIF</button><button type="button" data-expand data-title="Green · lower-shelf task" aria-label="Enlarge Green task animation">Expand ↗</button></div></div>
+          <figcaption>Approach, enter, push, withdraw, and return. Synchronized external and wrist views of the lower-shelf task.</figcaption>
+        </figure>
+        <figure class="task-panel">
+          <div class="task-title"><div><span class="task-dot red" aria-hidden="true"></span><h3>Red</h3><span>Upper shelf</span></div><span class="task-number">TASK 02</span></div>
+          <div class="gif-frame" data-animation><img src="assets/images/tasks-red.webp" data-gif="assets/gifs/tasks-red.gif" data-poster="assets/images/tasks-red.webp" alt="Red task demonstration, showing synchronized external and wrist camera views." width="960" height="270" loading="lazy"><div class="media-controls"><button type="button" data-toggle-animation aria-label="Play Red task animation">Play GIF</button><button type="button" data-expand data-title="Red · upper-shelf task" aria-label="Enlarge Red task animation">Expand ↗</button></div></div>
+          <figcaption>The same semantic sequence on the upper shelf, with different geometry, visual context, and contact conditions.</figcaption>
+        </figure>
+      </div>
+      <ol class="phase-sequence" aria-label="Ordered task phases">
+        <li style="--phase:#498b4f"><span>P0</span><strong>Approach</strong></li><li style="--phase:#8c9f3a"><span>P1</span><strong>Entry / alignment</strong></li><li style="--phase:#cb8b32"><span>P2</span><strong>Push</strong></li><li style="--phase:#9671aa"><span>P3</span><strong>Withdrawal / clearance</strong></li><li style="--phase:#648bb6"><span>P4</span><strong>Home return</strong></li>
+      </ol>
+    </section>
+
+    <section id="method" class="method-section" aria-labelledby="method-title">
+      <div class="section-wrap content-section">
+        <div class="section-heading"><p class="section-index">02 / THE CORE IDEA</p><div><h2 id="method-title">Same entropy.<br>Different reasons to intervene.</h2><p>Router entropy alone cannot distinguish a normal handoff from support for distant or earlier phases. The structure and history of router support make that distinction.</p></div></div>
+        <div class="entropy-demo">
+          <div class="entropy-explanation"><p class="eyebrow">AT STABILIZED PHASE P0</p><h3 id="entropy-title">An adjacent handoff.</h3><p id="entropy-description">Support is shared by P0 and its legal successor, P1. A locally compatible transition is allowed to settle within a bounded window.</p><div class="entropy-picker">
+              <p class="entropy-picker-hint" id="entropy-picker-hint">Click a case to compare the graph.</p>
+              <div class="entropy-switch" role="group" aria-label="Compare equal-entropy distributions" aria-describedby="entropy-picker-hint">
+                <button type="button" data-entropy="adjacent" aria-pressed="true" aria-label="P0 to P1: adjacent handoff" aria-controls="entropy-title entropy-description entropy-decision probability-bars">
+                  <strong>P0 → P1</strong><span class="entropy-choice-label">Adjacent handoff</span>
+                  <span class="entropy-choice-action"><span data-entropy-action>Selected</span><span data-entropy-indicator aria-hidden="true">✓</span></span>
+                </button>
+                <button type="button" data-entropy="nonlocal" aria-pressed="false" aria-label="P0 plus P4: distant phases" aria-controls="entropy-title entropy-description entropy-decision probability-bars">
+                  <strong>P0 + P4</strong><span class="entropy-choice-label">Distant phases</span>
+                  <span class="entropy-choice-action"><span data-entropy-action>Compare</span><span data-entropy-indicator aria-hidden="true">→</span></span>
+                </button>
+              </div>
+            </div><p class="decision" id="entropy-decision" role="status" aria-live="polite" aria-atomic="true"><span aria-hidden="true">↗</span> Continue while the handoff settles</p></div>
+          <div class="entropy-plot" role="img" aria-label="Illustrative adjacent phase distribution with normalized entropy 0.57"><div class="plot-topline"><span>ROUTER PROBABILITY</span><span class="entropy-value">H = <strong>0.57</strong></span></div><div class="probability-bars" id="probability-bars"><div><i style="--bar-height:95%;--bar-color:#498b4f"></i><span>P0</span></div><div><i style="--bar-height:95%;--bar-color:#8c9f3a"></i><span>P1</span></div><div><i style="--bar-height:3.333%;--bar-color:#cb8b32"></i><span>P2</span></div><div><i style="--bar-height:3.333%;--bar-color:#9671aa"></i><span>P3</span></div><div><i style="--bar-height:3.333%;--bar-color:#648bb6"></i><span>P4</span></div></div><p class="plot-note">Illustrative probability distributions from the paper’s equal-entropy example. Permuting support preserves entropy.</p></div>
+        </div>
+        <div class="architecture">
+          <div class="architecture-copy"><p class="eyebrow">THE ACQUISITION RULE</p><h3>Read the history.<br>Preserve the handoff.</h3><p>A phase-supervised soft mixture of five ACT-style action heads predicts robot motion from four-view RGB history and proprioception. The acquisition gate reads the causal router history.</p><div class="rule-list"><div><span>01</span><p><strong>Let compatible transitions settle.</strong> Suppress a query during a bounded handoff to the next phase.</p></div><div><span>02</span><p><strong>Request correction when needed.</strong> Trigger on persistent entropy outside that handoff, a transition timeout, or persistent regression.</p></div><div><span>03</span><p><strong>Keep action routing soft.</strong> The phase graph informs acquisition. The policy receives no runtime phase label, progress variable, or hard phase command.</p></div></div><a class="text-link" href="assets/paper/moe-dagger.pdf?v=2611.10825v1#page=3" target="_blank" rel="noopener">Read the complete rule <span aria-hidden="true">↗</span></a></div>
+          <figure class="architecture-figure"><a href="assets/images/architecture.png" target="_blank" rel="noopener" aria-label="Open the full-resolution architecture figure"><img src="assets/images/architecture.png" alt="MoE-DAgger architecture: four-view observations and proprioception feed a soft mixture of phase-anchored experts, while a separate causal router-history gate chooses whether to continue or query." width="1030" height="1150" loading="lazy"></a><figcaption>Figure 2 from the manuscript. Click to view at full resolution.</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-wrap content-section" id="examples" aria-labelledby="examples-title">
+      <div class="section-heading"><p class="section-index">03 / INSIDE THE DECISION</p><div><h2 id="examples-title">From router signals to correction.</h2><p>Explore six clips of the policy in action and the acquisition rule. Select an example to inspect its camera views and, where available, router diagnostics.</p></div></div>
+      <div class="demo-picker-heading">
+        <div><h3>Choose a clip</h3><p id="demo-picker-hint">Click a preview to watch the animation below.</p></div>
+        <p class="demo-selection" id="demo-selection" role="status" aria-live="polite" aria-atomic="true">Selected: 01 / 06 · Soft routing</p>
+      </div>
+      <div class="demo-tabs" role="tablist" aria-label="Choose a robot clip" aria-describedby="demo-picker-hint">
+        <button type="button" id="tab-routing" role="tab" aria-label="01 Soft routing" aria-selected="true" aria-controls="demo-panel" tabindex="0" data-demo="routing">
+          <span class="demo-thumbnail" aria-hidden="true"><img src="assets/images/router-probabilities.webp" alt="" width="320" height="180" loading="lazy"><span class="demo-play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></span>
+          <span class="demo-card-copy"><span class="demo-card-title"><span>01</span>Soft routing</span><span class="demo-card-action"><span data-demo-action>Selected</span><span data-demo-indicator aria-hidden="true">✓</span></span></span>
+        </button>
+        <button type="button" id="tab-entropy" role="tab" aria-label="02 High entropy" aria-selected="false" aria-controls="demo-panel" tabindex="-1" data-demo="entropy">
+          <span class="demo-thumbnail" aria-hidden="true"><img src="assets/images/high-entropy.webp" alt="" width="320" height="180" loading="lazy"><span class="demo-play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></span>
+          <span class="demo-card-copy"><span class="demo-card-title"><span>02</span>High entropy</span><span class="demo-card-action"><span data-demo-action>View clip</span><span data-demo-indicator aria-hidden="true">→</span></span></span>
+        </button>
+        <button type="button" id="tab-without" role="tab" aria-label="03 Without the veto" aria-selected="false" aria-controls="demo-panel" tabindex="-1" data-demo="without">
+          <span class="demo-thumbnail" aria-hidden="true"><img src="assets/images/without-veto.webp" alt="" width="320" height="180" loading="lazy"><span class="demo-play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></span>
+          <span class="demo-card-copy"><span class="demo-card-title"><span>03</span>Without the veto</span><span class="demo-card-action"><span data-demo-action>View clip</span><span data-demo-indicator aria-hidden="true">→</span></span></span>
+        </button>
+        <button type="button" id="tab-complete" role="tab" aria-label="04 Complete rule" aria-selected="false" aria-controls="demo-panel" tabindex="-1" data-demo="complete">
+          <span class="demo-thumbnail" aria-hidden="true"><img src="assets/images/complete-rule.webp" alt="" width="320" height="180" loading="lazy"><span class="demo-play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></span>
+          <span class="demo-card-copy"><span class="demo-card-title"><span>04</span>Complete rule</span><span class="demo-card-action"><span data-demo-action>View clip</span><span data-demo-indicator aria-hidden="true">→</span></span></span>
+        </button>
+        <button type="button" id="tab-causal" role="tab" aria-label="05 Causal evidence" aria-selected="false" aria-controls="demo-panel" tabindex="-1" data-demo="causal">
+          <span class="demo-thumbnail" aria-hidden="true"><img src="assets/images/causal-entropy.webp" alt="" width="320" height="180" loading="lazy"><span class="demo-play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></span>
+          <span class="demo-card-copy"><span class="demo-card-title"><span>05</span>Causal evidence</span><span class="demo-card-action"><span data-demo-action>View clip</span><span data-demo-indicator aria-hidden="true">→</span></span></span>
+        </button>
+        <button type="button" id="tab-retry" role="tab" aria-label="06 Second push" aria-selected="false" aria-controls="demo-panel" tabindex="-1" data-demo="retry">
+          <span class="demo-thumbnail demo-thumbnail-comparison" aria-hidden="true"><img src="assets/images/red-second-push.webp" alt="" width="1100" height="700" loading="lazy"><span class="demo-play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></span>
+          <span class="demo-card-copy"><span class="demo-card-title"><span>06</span>Second push</span><span class="demo-card-action"><span data-demo-action>View clip</span><span data-demo-indicator aria-hidden="true">→</span></span></span>
+        </button>
+      </div>
+      <div class="demo-panel" id="demo-panel" role="tabpanel" aria-labelledby="tab-routing" tabindex="0">
+        <div class="demo-text"><div><p class="eyebrow" id="demo-type">GREEN · SUCCESSFUL ROLLOUT</p><h3 id="demo-title">Soft routing through the task.</h3></div><p id="demo-description">External and wrist views are synchronized with the five phase probabilities and router entropy. The policy blends phase-anchored action heads as the robot progresses through the task.</p></div>
+        <div class="gif-frame demo-animation" data-animation><img id="demo-image" src="assets/images/router-probabilities.webp" data-gif="assets/gifs/router-probabilities.gif" data-poster="assets/images/router-probabilities.webp" alt="Successful Green rollout with synchronized camera views, router probabilities, and entropy." width="1100" height="619" loading="lazy"><div class="media-controls"><button type="button" data-toggle-animation aria-label="Play robot example">Play GIF</button><button type="button" data-expand data-title="Soft routing through the task" aria-label="Enlarge robot example">Expand ↗</button></div></div>
+        <div class="demo-bottom"><span id="demo-speed">Source playback speed</span><a id="demo-download" href="assets/gifs/router-probabilities.gif" download>Download GIF <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <p class="section-footnote">The no-veto clip is an illustrative counterfactual replay. The complete-rule clip replays a Red collision trace; the causal-evidence clip shows a separate Red no-contact trace. Displayed proposals are diagnostic evidence, not demonstrations of physical recovery. The second-push clip shows observed robot motion in two separate Red rollouts, without router overlays.</p>
+    </section>
+
+    <section id="results" class="results-section" aria-labelledby="results-title">
+      <div class="section-wrap content-section">
+        <div class="section-heading"><p class="section-index">04 / MEASURED ON THE ROBOT</p><div><h2 id="results-title">Better use of the correction budget.</h2><p>At matched active human-control time, transition awareness improves task success over the same-signal, phase-unaware entropy gate.</p></div></div>
+        <div class="result-heading"><div><h3>Task success</h3><p>Collision-free completion, return home, and stop-line crossing.</p></div><div class="segmented result-switch" role="group" aria-label="Result task"><button type="button" data-task="0" aria-pressed="true"><span class="task-dot green" aria-hidden="true"></span>Green</button><button type="button" data-task="1" aria-pressed="false"><span class="task-dot red" aria-hidden="true"></span>Red</button></div></div>
+        <div class="results-chart" id="results-chart" aria-label="Task success by method, Green task"></div>
+        <p class="chart-caption">Bars: task-success point estimates. Whiskers: 95% Wilson confidence intervals. Source: manuscript Table II. Each method–task cell has 50 rollouts from two training seeds.</p>
+        <div class="results-insights"><div><span>84% / 78%</span><p>MoE-DAgger success on Green / Red<br><small>95% CIs: [71.5, 91.7] / [64.8, 87.2]</small></p></div><div><span>112.55 / 127.55 s</span><p>Active human control, Green / Red<br><small>Other added-data methods matched within ±5%.</small></p></div></div>
+        <details class="results-details"><summary>View all methods and exact values <span aria-hidden="true">+</span></summary><div class="table-scroll" tabindex="0" role="region" aria-label="Full results table"><table id="results-table"><caption>Table II · Green / Red paired values</caption><thead><tr><th scope="col">Method</th><th scope="col">Task success (%)</th><th scope="col">Sequence execution (%)</th><th scope="col">Collision (%)</th><th scope="col">Human control (s)</th></tr></thead><tbody></tbody></table></div></details>
+        <p class="results-caveat">ACT temporal disagreement is competitive (82% / 72%); the task-success differences against it are not statistically resolved. Zero observed collisions is a finite-sample result. Each method–task condition uses one acquired dataset, so the two training seeds do not measure variability across acquisition sets.</p>
+      </div>
+    </section>
+
+    <section class="section-wrap content-section evidence-section" aria-labelledby="evidence-title">
+      <div class="section-heading"><p class="section-index">05 / WHY TIMING MATTERS</p><div><h2 id="evidence-title">Ask on the right rollout.<br>At the right moment.</h2></div></div>
+      <div class="evidence-grid"><article><p class="eyebrow">COMMON-TRACE AUDIT</p><h3>83.3<span>%</span></h3><p class="evidence-lead">of first proposals align with predefined failure windows.</p><p>At 15 selected traces per task, pooled aligned yield is 83.3% for MoE-DAgger, 70.0% for ACT temporal disagreement, and 63.3% for ensemble disagreement.</p><p class="evidence-note">The same 50 intervention-free traces per task are replayed. This measures proposal allocation; it does not establish intervention recovery. Source: Table III.</p></article><article><p class="eyebrow">ACTIVE NO-VETO ABLATION</p><h3>68 → 84<span>%</span></h3><p class="evidence-lead">Green task success, without → with the adjacent veto.</p><p>On Red, task success changes from 60% to 78%. The full and no-veto rules independently collect corrections under matched human-control time and then retrain.</p><p class="evidence-note">Point estimates favor the full rule; the 95% intervals for these task-success differences include zero. Source: Table V.</p></article></div>
+      <div class="scope-note"><span>EXPERIMENTAL SCOPE</span><p>One robot and fixture, two geometric variants of a pushing task, separate task-specific policies, and one aggregation round. Generalization to other task families and shared policies remains open.</p></div>
+    </section>
+
+    <section id="resources" class="resources-section" aria-labelledby="resources-title"><div class="section-wrap content-section">
+      <div class="section-heading"><p class="section-index">06 / READ & REUSE</p><div><h2 id="resources-title">The paper, in full.</h2><p>Read the paper for the complete acquisition rule, experimental protocol, common-trace analysis, and limitations.</p></div></div>
+      <div class="resource-links"><a href="assets/paper/moe-dagger.pdf?v=2611.10825v1" target="_blank" rel="noopener"><span>01</span><div><strong>Paper PDF</strong><small>arXiv:2611.10825 · v1</small></div><span aria-hidden="true">↗</span></a><a href="assets/videos/supplementary.mp4" download="MoE-DAgger-supplementary.mp4"><span>02</span><div><strong>Supplementary video</strong><small>Tasks, method, and experiments · MP4</small></div><span aria-hidden="true">↓</span></a><button type="button" id="code-footer"><span>03</span><div><strong>Source code</strong><small id="code-footer-status">Release planned · Coming soon</small></div><span aria-hidden="true">↗</span></button></div>
+      <details class="abstract-details"><summary>Abstract <span aria-hidden="true">+</span></summary><p id="abstract-text"></p></details>
+      <div class="citation-header"><h3>Citation</h3><div><a href="citation.bib?v=2611.10825v1" id="download-bib" download="moe-dagger.bib">Download .bib ↓</a><button type="button" id="copy-bib">Copy BibTeX <span aria-hidden="true">⧉</span></button></div></div><pre class="citation"><code id="bibtex">@misc{heo2026moedaggertransitionawarerouterentropygating,
+  title={MoE-DAgger: Transition-Aware Router-Entropy Gating for Selective Human Correction in Phase-Structured Manipulation},
+  author={Sungjun Heo and Sungjun Yang and Heedon Jeong and Junhyoung Ha and Jeong hwan Jeon},
+  year={2026},
+  eprint={2611.10825},
+  archivePrefix={arXiv},
+  primaryClass={cs.RO},
+  url={https://arxiv.org/abs/2611.10825},
+}</code></pre><p class="citation-note" id="citation-note">Official arXiv citation · arXiv:2611.10825 [cs.RO] · 2026.</p>
+    </div></section>
+  </main>
+  <footer class="site-footer section-wrap"><div><a class="brand" href="#top"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>MoE-DAgger</a><p>Selective human correction.<br>Informed by the structure of the task.</p></div><div><span>UNIST · Republic of Korea</span><p>Correspondence<br><a href="mailto:j.ha@unist.ac.kr">Junhyoung Ha</a> · <a href="mailto:jhjeon@unist.ac.kr">Jeong hwan Jeon</a></p></div><a class="back-top" href="#top">Back to top ↑</a></footer>
+
+  <dialog id="resource-dialog" class="resource-dialog" aria-labelledby="resource-dialog-title"><button type="button" class="dialog-close" aria-label="Close dialog">×</button><p class="eyebrow">PROJECT RESOURCES</p><h2 id="resource-dialog-title">Code release coming soon.</h2><p id="resource-dialog-description">The source code is planned for a future release. The paper and supplementary video are available now.</p><a class="badge badge-primary" id="dialog-paper-link" href="assets/paper/moe-dagger.pdf?v=2611.10825v1" target="_blank" rel="noopener">Read the paper PDF · arXiv v1 ↗</a></dialog>
+  <dialog id="media-dialog" class="media-dialog" aria-labelledby="media-dialog-title"><div class="media-dialog-header"><h2 id="media-dialog-title">Robot demonstration</h2><button type="button" class="dialog-close" aria-label="Close enlarged animation">Close ×</button></div><img id="media-dialog-image" alt=""><div class="media-dialog-footer"><button type="button" id="dialog-animation-toggle">Pause animation</button><a href="assets/gifs/router-probabilities.gif" id="dialog-gif-download" download>Download GIF ↓</a></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript><div class="noscript-note">JavaScript is off. The paper and video are available above. View the animations directly: <a href="assets/gifs/tasks-green.gif">Green</a>, <a href="assets/gifs/tasks-red.gif">Red</a>, <a href="assets/gifs/router-probabilities.gif">soft routing</a>, <a href="assets/gifs/high-entropy.gif">high entropy</a>, <a href="assets/gifs/without-veto.gif">without veto</a>, <a href="assets/gifs/complete-rule.gif">complete rule</a>, <a href="assets/gifs/causal-entropy.gif">causal evidence</a>, <a href="assets/gifs/red-second-push.gif">second push</a>. Full numerical results are in the manuscript.</div></noscript>
+</body>
+</html>
