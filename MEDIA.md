@@ -103,3 +103,25 @@ GIF 파일 크기: **52,396,090 bytes (49.97 MiB)**.
 - 입력과 배포 PDF의 SHA-256: `ca4275163c15b37a54f4da029c4bf1fa78c5e39e938f53aea0be62752ced69fa`.
 - arXiv 식별자 표기와 공백을 제외한 PDF 추출 본문은 이전 manuscript와 일치합니다. 기존 그림·표·결과 수치를 유지했습니다.
 - `citation.bib`와 화면의 인용 정보는 공식 arXiv export를 사용합니다.
+
+
+## 웹 재생용 MP4 최적화 (2026-11-10)
+
+화면의 Green / Red 과제, Choose a clip 6개, 확대 보기는 `assets/videos/clips/`의 MP4를 사용합니다. 기존 GIF와 WebP 포스터는 변경하지 않았습니다. GIF 전체 다운로드 및 디코딩을 기다리던 지연을 줄이기 위한 재생용 파생 파일입니다.
+
+- 입력: 같은 슬러그의 배포 GIF. H.264/libx264 CRF 21, medium, yuv420p, 무음, `+faststart`.
+- 각 프레임 개수와 presentation timestamp는 원본 GIF와 일치합니다. 1100×619 파일은 하단에 흰색 1픽셀을 덧붙여 1100×620으로 인코딩했습니다.
+- complete-rule/router-probabilities/without-veto는 마지막 프레임 길이 추론 차이로 컨테이너 duration만 0.01초 짧습니다. 모든 프레임과 해당 프레임의 재생 시점은 보존했습니다.
+- 모든 MP4에서 moov가 mdat보다 앞에 있어 다운로드 도중 재생할 수 있습니다. Second push SSIM: 0.986698.
+- 총 211.56 MiB → 16.80 MiB, 92.06% 감소. 기존 GIF 다운로드 링크는 유지합니다.
+
+| MP4 파일 | 크기(bytes) | SHA-256 |
+| --- | ---: | --- |
+| `causal-entropy.mp4` | 751,855 | `21f0e4538dc384fd7ef1d87490296bd77a2658635ae33fc0593b4128729a5ac4` |
+| `complete-rule.mp4` | 1,809,051 | `fe42802ddac8a04da2c3632b9e500b29389d349c910569656e7f468896ec9620` |
+| `high-entropy.mp4` | 1,100,477 | `262e46e3aafdcee12e58daefa3e789854672951091fb3d7a7495d9bce68af8a7` |
+| `red-second-push.mp4` | 3,566,990 | `e58b720d9752e9f0ef3aaf2c6dc3c4ffee8d556b27b619ea2da068e9b4af7c82` |
+| `router-probabilities.mp4` | 2,954,539 | `1a04c3ff8590233280b3c133bf672eb2f4fb68f251d1d1d564c548bcebf50be8` |
+| `tasks-green.mp4` | 2,726,885 | `5a476c0b29f9b7abe9998a92184b4e26f41dd043b849157536f9c802b14b9caf` |
+| `tasks-red.mp4` | 1,866,555 | `d448fbf8dffff12bbd0492c83fe857397b102e32fb1ebb3366ab1026eaa9f91e` |
+| `without-veto.mp4` | 2,836,332 | `bc95c94ed3e41edca8d2c011bc9a67dbf7496fe1e2e8d2966d11d5a503b8f59f` |

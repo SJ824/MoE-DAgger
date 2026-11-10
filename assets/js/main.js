@@ -89,122 +89,176 @@
     ["overview", "method", "results", "resources"].forEach(id => navigationObserver.observe(document.getElementById(id)));
   }
 
-  // GIFs remain true GIF assets. Only nearby media are loaded; pausing restores
-  // a poster. Resuming a GIF restarts that animation from its first frame.
+  // Stream lightweight MP4s for playback; original GIFs remain download links.
+  // Off-screen clips pause without discarding their buffers.
   const animationStates = new Map();
-  function setAnimation(frame, play) {
-    const state = animationStates.get(frame);
-    if (!state) return;
-    const wanted = play ? state.image.dataset.gif : state.image.dataset.poster;
-    if (state.requestedSrc === wanted) return;
-    state.requestedSrc = wanted;
+  function renderAnimation(state, message = "") {
+    state.status.textContent = message;
+    state.status.hidden = !message;
+    state.stage.setAttribute("aria-busy", String(state.loading));
+    state.frame.classList.toggle("is-paused", !state.playRequested);
+    state.button.textContent = state.failed ? "Retry" : state.loading ? "Cancel loading" : state.playRequested ? "Pause clip" : "Play clip";
+    state.button.setAttribute("aria-label", state.failed ? "Retry clip" : state.loading ? "Cancel clip loading" : state.playRequested ? "Pause clip" : "Play clip");
+    state.button.setAttribute("aria-pressed", String(state.playing));
+  }
+  function clipDetails(video) {
+    return { src: video.dataset.src, gif: video.dataset.gif, poster: video.getAttribute("poster"), label: video.getAttribute("aria-label"), width: video.width, height: video.height };
+  }
+  function replaceClip(state, clip) {
+    const previous = state.video;
+    const video = previous.cloneNode(false);
+    video.removeAttribute("src");
+    video.dataset.src = clip.src;
+    video.dataset.gif = clip.gif;
+    video.poster = clip.poster;
+    video.setAttribute("aria-label", clip.label);
+    video.width = clip.width;
+    video.height = clip.height;
+    video.preload = "none";
+    clearTimeout(state.loadTimer);
+    state.playId++;
+    state.video = video;
+    state.playRequested = state.playing = state.loading = state.failed = false;
+    previous.replaceWith(video);
+    previous.pause();
+    previous.removeAttribute("src");
+    previous.load(); // Cancel the previous clip, including any outstanding range request.
+    bindVideo(state, video);
+    renderAnimation(state);
+  }
+  function failAnimation(state, message) {
+    replaceClip(state, clipDetails(state.video));
+    state.userPaused = state.failed = true;
+    renderAnimation(state, message);
+  }
+  function waitForPlayback(state) {
+    if (state.loadTimer) return;
+    const video = state.video;
+    state.loadTimer = setTimeout(() => {
+      state.loadTimer = null;
+      if (state.video === video && state.playRequested && state.loading) {
+        failAnimation(state, "Loading took too long. Select Retry to try again.");
+      }
+    }, 20000);
+  }
+  function bindVideo(state, video) {
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    state.stage.style.aspectRatio = `${video.width} / ${video.height}`;
+    video.addEventListener("playing", () => {
+      if (state.video !== video || !state.playRequested) return;
+      clearTimeout(state.loadTimer);
+      state.loadTimer = null;
+      state.loading = false;
+      state.playing = true;
+      renderAnimation(state);
+    });
+    video.addEventListener("waiting", () => {
+      if (state.video !== video || !state.playRequested) return;
+      state.loading = true;
+      state.playing = false;
+      renderAnimation(state, video.currentTime > 0 ? "Buffering…" : "Loading clip…");
+      waitForPlayback(state);
+    });
+    video.addEventListener("error", () => {
+      if (state.video !== video || !state.playRequested) return;
+      failAnimation(state, "This clip could not load. Select Retry to try again.");
+    });
+  }
+  function setAnimation(state, play) {
+    if (state.playRequested === play) return;
+    if (play && state.failed) replaceClip(state, clipDetails(state.video));
+    const video = state.video;
+    const playId = ++state.playId;
     state.playRequested = play;
     state.playing = false;
-    const requestId = ++state.requestId;
-
-    // A reused <img> can keep painting the previous GIF while its next src loads.
-    // Replace it immediately and show the selected poster until this request is ready.
-    const image = state.image.cloneNode(false);
-    image.removeAttribute("src");
-    image.loading = "eager";
-    image.style.visibility = "hidden";
-    state.stage.style.aspectRatio = `${image.width} / ${image.height}`;
-    state.stage.style.backgroundImage = `url("${image.dataset.poster}")`;
-    state.status.textContent = play ? "Loading animation…" : "";
-    state.status.hidden = !play;
-    state.stage.setAttribute("aria-busy", String(play));
-    state.button.textContent = play ? "Cancel loading" : "Play GIF";
-    state.button.setAttribute("aria-label", play ? "Cancel animation loading" : "Play animation from the beginning");
-    state.button.setAttribute("aria-pressed", "false");
-    frame.classList.toggle("is-paused", !play);
-    image.addEventListener("load", () => {
-      if (requestId !== state.requestId) return;
-      image.style.visibility = "";
-      state.playing = play;
-      state.status.hidden = true;
-      state.stage.setAttribute("aria-busy", "false");
-      state.button.textContent = play ? "Pause GIF" : "Play GIF";
-      state.button.setAttribute("aria-label", play ? "Pause animation" : "Play animation from the beginning");
-      state.button.setAttribute("aria-pressed", String(play));
-    }, { once: true });
-    image.addEventListener("error", () => {
-      if (requestId !== state.requestId) return;
-      if (play) {
+    state.loading = play;
+    clearTimeout(state.loadTimer);
+    state.loadTimer = null;
+    if (!play) {
+      video.pause();
+      video.preload = "metadata";
+      renderAnimation(state);
+      return;
+    }
+    renderAnimation(state, "Loading clip…");
+    if (!video.hasAttribute("src")) video.src = video.dataset.src;
+    video.preload = "auto";
+    waitForPlayback(state);
+    // play()/playing starts once a few frames are buffered, not after the file finishes.
+    video.play().catch(error => {
+      if (state.video !== video || state.playId !== playId || !state.playRequested) return;
+      if (error.name === "NotAllowedError") {
         state.userPaused = true;
-        setAnimation(frame, false);
-        toast("The animation could not load. Try Play GIF again.");
-      } else {
-        state.stage.setAttribute("aria-busy", "false");
-        state.status.textContent = "Preview unavailable. Select Play GIF to try the animation.";
-        state.status.hidden = false;
+        setAnimation(state, false);
+        renderAnimation(state, "Select Play clip to start.");
+      } else if (error.name !== "AbortError") {
+        failAnimation(state, "This clip could not play. Select Retry to try again.");
       }
-    }, { once: true });
-    const previousImage = state.image;
-    previousImage.replaceWith(image);
-    state.image = image;
-    previousImage.removeAttribute("src");
-    image.src = wanted;
+    });
   }
-  function canAutoplay(state) { return state.visible && !state.userPaused && !reducedMotion.matches && !dataSaver && !mediaDialog.open && !document.hidden; }
-  $$('[data-animation]').forEach(frame => {
-    const image = $("img", frame);
-    const button = $("[data-toggle-animation]", frame);
+  function createAnimationState(frame, button) {
+    const video = $("video", frame);
     const stage = document.createElement("div");
     stage.className = "animation-stage";
-    image.before(stage);
-    stage.append(image);
+    video.before(stage);
+    stage.append(video);
     const status = document.createElement("span");
     status.className = "animation-status";
     status.setAttribute("role", "status");
     status.hidden = true;
     stage.append(status);
-    const state = { image, button, stage, status, playing: false, playRequested: false, requestId: 0, requestedSrc: "", visible: false, userPaused: false };
-    animationStates.set(frame, state);
-    setAnimation(frame, false);
+    const state = { frame, video, button, stage, status, playing: false, playRequested: false, loading: false, failed: false, playId: 0, loadTimer: null, visible: false, userPaused: false };
+    bindVideo(state, video);
+    renderAnimation(state);
     button.addEventListener("click", () => {
       state.userPaused = state.playRequested;
-      setAnimation(frame, !state.playRequested);
+      setAnimation(state, !state.playRequested);
     });
+    return state;
+  }
+  function canAutoplay(state) { return state.visible && !state.userPaused && !reducedMotion.matches && !dataSaver && !mediaDialog.open && !document.hidden; }
+  const dialogState = createAnimationState($("#dialog-animation-frame"), $("#dialog-animation-toggle"));
+  $$('[data-animation]').forEach(frame => {
+    const state = createAnimationState(frame, $("[data-toggle-animation]", frame));
+    animationStates.set(frame, state);
     $("[data-expand]", frame).addEventListener("click", event => {
-      const image = state.image;
-      const dialogImage = $("#media-dialog-image");
-      const wasPlaying = state.playing;
+      const play = state.playRequested;
+      const position = state.video.currentTime;
+      const clip = clipDetails(state.video);
       $("#media-dialog-title").textContent = event.currentTarget.dataset.title;
-      dialogImage.alt = image.alt;
-      dialogImage.dataset.gif = image.dataset.gif;
-      dialogImage.dataset.poster = image.dataset.poster;
-      dialogImage.dataset.playing = String(wasPlaying);
-      dialogImage.src = wasPlaying ? image.dataset.gif : image.dataset.poster;
-      $("#dialog-gif-download").href = image.dataset.gif;
-      $("#dialog-animation-toggle").textContent = wasPlaying ? "Pause animation" : "Play animation";
-      animationStates.forEach((_, otherFrame) => setAnimation(otherFrame, false));
+      $("#dialog-gif-download").href = clip.gif;
+      replaceClip(dialogState, clip);
+      const video = dialogState.video;
+      video.addEventListener("loadedmetadata", () => {
+        if (dialogState.video === video && position > 0 && position < video.duration) video.currentTime = position;
+      }, { once: true });
+      animationStates.forEach(otherState => setAnimation(otherState, false));
       openDialog(mediaDialog);
+      setAnimation(dialogState, play);
     });
   });
   if ("IntersectionObserver" in window) {
     const mediaObserver = new IntersectionObserver(entries => entries.forEach(entry => {
       const state = animationStates.get(entry.target);
       state.visible = entry.isIntersecting;
-      setAnimation(entry.target, canAutoplay(state));
-    }), { rootMargin: "160px 0px", threshold: 0.01 });
+      setAnimation(state, canAutoplay(state));
+    }), { rootMargin: "0px", threshold: 0.01 });
     animationStates.forEach((_, frame) => mediaObserver.observe(frame));
   }
-  $("#dialog-animation-toggle").addEventListener("click", event => {
-    const image = $("#media-dialog-image");
-    const play = image.dataset.playing !== "true";
-    image.dataset.playing = String(play);
-    image.src = play ? image.dataset.gif : image.dataset.poster;
-    event.currentTarget.textContent = play ? "Pause animation" : "Play animation";
-  });
   mediaDialog.addEventListener("close", () => {
-    $("#media-dialog-image").removeAttribute("src");
-    animationStates.forEach((state, frame) => setAnimation(frame, canAutoplay(state)));
+    replaceClip(dialogState, clipDetails(dialogState.video));
+    animationStates.forEach(state => setAnimation(state, canAutoplay(state)));
   });
   document.addEventListener("visibilitychange", () => {
-    animationStates.forEach((state, frame) => setAnimation(frame, canAutoplay(state)));
-    if (document.hidden) $("#supplementary-video").pause();
+    animationStates.forEach(state => setAnimation(state, canAutoplay(state)));
+    if (document.hidden) {
+      $("#supplementary-video").pause();
+      setAnimation(dialogState, false);
+    }
   });
-  reducedMotion.addEventListener("change", () => animationStates.forEach((state, frame) => setAnimation(frame, canAutoplay(state))));
+  reducedMotion.addEventListener("change", () => animationStates.forEach(state => setAnimation(state, canAutoplay(state))));
 
   const demoFrame = $(".demo-animation");
   const demoData = {
@@ -237,15 +291,21 @@
     $("#demo-description").textContent = selected.description;
     $("#demo-speed").textContent = selected.speed;
     const state = animationStates.get(demoFrame);
-    state.image.dataset.gif = `assets/gifs/${selected.slug}.gif`;
-    state.image.dataset.poster = `assets/images/${selected.slug}.webp`;
-    state.image.alt = selected.alt;
-    state.image.width = selected.width || 1100;
-    state.image.height = selected.height || 619;
+    replaceClip(state, {
+      src: `assets/videos/clips/${selected.slug}.mp4`,
+      gif: `assets/gifs/${selected.slug}.gif`,
+      poster: `assets/images/${selected.slug}.webp`,
+      label: selected.alt,
+      width: selected.width || 1100,
+      height: selected.height || 620
+    });
     state.userPaused = false;
+    // Warm only the explicitly selected clip, even when the player is just below view.
+    state.video.preload = "metadata";
+    state.video.src = state.video.dataset.src;
     $("[data-expand]", demoFrame).dataset.title = selected.title;
-    $("#demo-download").href = state.image.dataset.gif;
-    setAnimation(demoFrame, canAutoplay(state));
+    $("#demo-download").href = state.video.dataset.gif;
+    setAnimation(state, canAutoplay(state));
   }
   const tabs = $$("[data-demo]");
   tabs.forEach((button, index) => {
