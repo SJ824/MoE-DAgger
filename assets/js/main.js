@@ -96,32 +96,77 @@
     const state = animationStates.get(frame);
     if (!state) return;
     const wanted = play ? state.image.dataset.gif : state.image.dataset.poster;
-    if (state.image.getAttribute("src") !== wanted) state.image.src = wanted;
-    state.playing = play;
-    state.button.textContent = play ? "Pause GIF" : "Play GIF";
-    state.button.setAttribute("aria-label", play ? "Pause animation" : "Play animation from the beginning");
-    state.button.setAttribute("aria-pressed", String(play));
+    if (state.requestedSrc === wanted) return;
+    state.requestedSrc = wanted;
+    state.playRequested = play;
+    state.playing = false;
+    const requestId = ++state.requestId;
+
+    // A reused <img> can keep painting the previous GIF while its next src loads.
+    // Replace it immediately and show the selected poster until this request is ready.
+    const image = state.image.cloneNode(false);
+    image.removeAttribute("src");
+    image.loading = "eager";
+    image.style.visibility = "hidden";
+    state.stage.style.aspectRatio = `${image.width} / ${image.height}`;
+    state.stage.style.backgroundImage = `url("${image.dataset.poster}")`;
+    state.status.textContent = play ? "Loading animation…" : "";
+    state.status.hidden = !play;
+    state.stage.setAttribute("aria-busy", String(play));
+    state.button.textContent = play ? "Cancel loading" : "Play GIF";
+    state.button.setAttribute("aria-label", play ? "Cancel animation loading" : "Play animation from the beginning");
+    state.button.setAttribute("aria-pressed", "false");
     frame.classList.toggle("is-paused", !play);
+    image.addEventListener("load", () => {
+      if (requestId !== state.requestId) return;
+      image.style.visibility = "";
+      state.playing = play;
+      state.status.hidden = true;
+      state.stage.setAttribute("aria-busy", "false");
+      state.button.textContent = play ? "Pause GIF" : "Play GIF";
+      state.button.setAttribute("aria-label", play ? "Pause animation" : "Play animation from the beginning");
+      state.button.setAttribute("aria-pressed", String(play));
+    }, { once: true });
+    image.addEventListener("error", () => {
+      if (requestId !== state.requestId) return;
+      if (play) {
+        state.userPaused = true;
+        setAnimation(frame, false);
+        toast("The animation could not load. Try Play GIF again.");
+      } else {
+        state.stage.setAttribute("aria-busy", "false");
+        state.status.textContent = "Preview unavailable. Select Play GIF to try the animation.";
+        state.status.hidden = false;
+      }
+    }, { once: true });
+    const previousImage = state.image;
+    previousImage.replaceWith(image);
+    state.image = image;
+    previousImage.removeAttribute("src");
+    image.src = wanted;
   }
   function canAutoplay(state) { return state.visible && !state.userPaused && !reducedMotion.matches && !dataSaver && !mediaDialog.open && !document.hidden; }
   $$('[data-animation]').forEach(frame => {
     const image = $("img", frame);
     const button = $("[data-toggle-animation]", frame);
-    const state = { image, button, playing: false, visible: false, userPaused: false };
+    const stage = document.createElement("div");
+    stage.className = "animation-stage";
+    image.before(stage);
+    stage.append(image);
+    const status = document.createElement("span");
+    status.className = "animation-status";
+    status.setAttribute("role", "status");
+    status.hidden = true;
+    stage.append(status);
+    const state = { image, button, stage, status, playing: false, playRequested: false, requestId: 0, requestedSrc: "", visible: false, userPaused: false };
     animationStates.set(frame, state);
     setAnimation(frame, false);
     button.addEventListener("click", () => {
-      state.userPaused = state.playing;
-      setAnimation(frame, !state.playing);
-    });
-    image.addEventListener("error", () => {
-      if (image.getAttribute("src") === image.dataset.gif) {
-        setAnimation(frame, false);
-        state.userPaused = true;
-        toast("The animation could not load. Try Play GIF again.");
-      }
+      state.userPaused = state.playRequested;
+      setAnimation(frame, !state.playRequested);
     });
     $("[data-expand]", frame).addEventListener("click", event => {
+      const image = state.image;
       const dialogImage = $("#media-dialog-image");
       const wasPlaying = state.playing;
       $("#media-dialog-title").textContent = event.currentTarget.dataset.title;
